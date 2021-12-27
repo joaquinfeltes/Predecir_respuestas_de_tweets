@@ -8,11 +8,11 @@ Profesora: `Laura Alonso Alemany`
 
 # Introduccion
 
-La idea principal es predecir cuántas respuestas va a tener un tweet. Para esto se tomo el aproach de tarea de pretexto, usando la cantidad de respuestas de un tuit para generar una tag para el entrenamiento del modelo de preddicion. Ademas, se va a utilizar el predictor de respuestas para ser agregado a un pipeline de generacion de respuestas a tuits. Este generador fue el trabajo final de Lautaro Martinez, un compañero de la materia (github.com/LMartinezEXEX/Generador_Contestaciones).
+La idea principal es predecir cuántas respuestas va a tener un tweet. Para esto se tomo el aproach de tarea de pretexto, usando la cantidad de respuestas de un tuit para generar una tag para el entrenamiento del modelo de preddicion. Ademas, se va a utilizar el predictor de respuestas para ser agregado a un pipeline de generacion de respuestas a tuits. Este generador fue el trabajo final de [Lautaro Martinez](github.com/LMartinezEXEX/Generador_Contestaciones), un compañero de la materia.
 
 # Dataset
 
-El dataset fue el creado por Mariano Schmidt, para su tesis de Licenciatura: Explotando características contextuales para la detección de posturas en Twitter en el marco de la vacunación del COVID-19 en Argentina. Para pedir el dataset pueden pedirmelo por privado y tambien dejo su github: https://github.com/mschmidt4.
+El dataset fue el creado por Mariano Schmidt, para su tesis de Licenciatura: Explotando características contextuales para la detección de posturas en Twitter en el marco de la vacunación del COVID-19 en Argentina. Para pedir el dataset pueden pedirmelo por privado y tambien dejo su [github](https://github.com/mschmidt4).
 
 El dataset contiene 163.180 tweets en español.
 
@@ -87,6 +87,8 @@ Se puede observar que a la mayoria de elementos se les asigno la clase de 0 resp
 
 Luego la primer aproximacion que se hizo utilizando la division [0, 1, 2, +3] pero aun sin utilizar los subgrupos de 0 y 1, tuvo resultados similares al anterior, acumulandose las predicciones en el lado de 0 respuestas, pero teniendo los datos mucho mas compactos lo cual facilita su visualizacion. Algo a remarcar es que para este entrenamiento no se utilizo en su totalidad el dataset para entre namiento, ya que saturaban la memoria del Google colab. Se tomo entonces los primeros 25000 tuits, que siguen respresentando una buena cantidad.
 
+## ![Basic_BOW](./images/Basic_BOW.png)
+
 ### utilizando las subdivisiones de 0 y 1
 
 Para que la prediccion no se base en la cantidad de elementos, si no que se concentre en realmente el contenido del tweet, separamos la clase del 0 y del 1 en otros nuevos dataframes, los cuales estan marcados con subgrupos para ser entrenados por separado y tomar el promedio entre los resultados. Se corrieron las 90 combinaciones de subgrupos de clases, combinandolas con el resto de tweets. Luego se guardo un par de indices random para obtener la matriz de confusion:
@@ -103,41 +105,64 @@ Para analizar un poco mejor las cantidades de respuestas, sin depender de las cl
 
 Podemos ver que el porcentaje general aumento por unos pocos puntos, pero nuevamente vemos una acumulacion grande en las clases de pocas respuestas, esta vez como los subgrupos de 0 y 1 y la clase de 2 tienen la misma cantidad de elementos, se puede ver que se repartieron la mayoria de predicciones en estas columnas, y avanzando en la diagonal lejos de la esquina superior izquiera, podemos ver que todas las preddicciones dan 0%. La clase del 20, tiene un poco mas de elementos, ya que acumula todos los tuits de 20 o mas respuestas, y tuvo un poco mas de representacion, pero igualmente su porcentaje de acierto fue menor al 10%.
 
+Podemos observar en el siguiente histograma la cantidad de elementos que tenia cada clase para el entrenamiento, lo cual nos explica porque las clases del medio no estan bien representadas.
+
+## ![BOW_discreto_histograma](./images/histograma_bow_discreto.png)
+
 Una de las razones por las que se tomo esta aproximacion fue para ver si valia la pena hacer una division de clases dependiendo de como juntaba el modelo las respuestas si se observaban todas las clases juntas. Pero al tener tan pocos datos marcados con mas de 3 respuestas, es dificil hacer esta division y que de algun valor. Igualmente se intento hacer la siguiente aproximacion:
 
 ## ![BOW_0_1_mas](./images/0_1-2_mas.png)
 
 Donde se dividio en 0, 1-2 y +3. Se puede ver que esta division no fue muy buena, probablemente porque la cantidad de elementos de la clase de 1-2 era el doble que de las otras hizo que sea sobrerepresentada. Pero al haber dado un porcentaje tan bajo, no se decidio seguir investigando por esa rama.
 
-## Bag of words con CountVectorizer
+## Embeddings utilizando fasttext
+
+Para el uso de embeddings con fasttext se tomo como ejemplo el trabajo de [Nazareno Garagiola](https://github.com/NazaGara/tm_seriesTV), otro compañero de la materia. Se usaron embeddings con fasttext de twitter en español `fasttext_spanish_twitter_100d`. Para conseguir estos embeddings pueden pedirlos a cualquiera de nosotros dos.
+
+Para el proceso de embeddings se hacen algunos preprocesos extra, bastante similares a los que ya utilizamos.
+
+Usamos la libreria [pickle](https://docs.python.org/es/3/library/pickle.html) para guardar el preproceso y no hacerlo cada vez que corremos el codigo.
+!Importante! esto guarda los tweets preprocesados en drive, y al ejecutarlo con las 90 clases, llega a ocupar cerca de 3GB.
 
 ### Primer aproximacion
 
----
+La primer aproximacion usando las clases de [0, 1, 2, +3] pero sin utilizar los subgrupos de 0 y 1 tuvo resultados parecidos a su similar con BOW, con un porcentaje un poco mayor, pero tambien con mas predicciones de la clase del 0, dejando la clase de 2 respuestas con solo una prediccion que ademas fue incorrecta (era para un tuit con 1 respuesta).
 
----
+## ![basic_emb](./images/1er_test_embeddings.png)
 
----
+### utilizando las subdivisiones de 0 y 1
 
----
+Cuando usamos las divisiones de las clases del 0 y el 1, perdemos unos puntos porcentuales del total(20%), pero ganamos bastante representacion en las clases mas pequeñas:
 
----
+## ![emb_subdivisiones](./images/embedding_classes_14_5.png)
 
----
+Tenemos un 62% de acierto en la clase del 0, 10% mas que lo que se tenia en el metodo con BOW. La clase del 1 se ve poco representada, con un 18%, 12 puntos menos que lo que tenia en BOW, y lo mismo pasa con la del 2, que vuelve a ser la que menos porcentaje tiene en su fila (tambien 18%) pero por ultimo la clase de +3 tiene un 47%, 7 puntos mas que lo que tenia en BOW, por lo que con embeddings vemos que se representaron las clases de los extremos, lo cual tiene sentido.
 
----
+### Con las subdivisiones y clases discretas
 
----
+Nuevamente se probo usar las clases discretas, y se obtuvieron resultados muy parecidos a los de BOW. Que aunque suba el porcentaje de acierto general por unos pocos puntos, no vale la pena porque pierden representacion las clases del medio.
 
----
+## ![emb_discreto](./images/embedding_classes_discrete_1_1.png)
 
-PONER LA CANTIDAD DE ELEMENTOS POR CLASE en bow discreto y en embeddings tambien, para ver como es la distribucion, y ver asi como en la matriz de confusion depende de la cantidad de elementos.
+## Conclusion
 
-EN los embeddings con fasttext explicar que se uso lo de naza, que no puedo subir el original pero me lo pueden pedir por mi mail de contacto
+Como conclusion de esta etapa, podemos decir que la cantidad de representantes fue una gran influencia en las predicciones de cantidades de respuestas. Pero no hay que quedarse solo con eso, hay que apreciar el trabajo logrado para la division de clases, que como vimos comparando con otras, la division elegida fue bastante buena. Tambien recalcar que el uso de embeddings mejoro el rendimiento, lo cual es importante para tener en cuenta.
 
----
+Podemos ver en el siguiente boxplot la comparacion final de los metodos.
 
-PONER EN EL README ALGUN WARNING DE QUE LOS PICKLE OCUPAN MUCHA MEMORIA (3 GB SI GUARDAS LOS 90 + EL TRAINING)
+## ![boxplot](./images/Boxplot.png)
+
+Se puede ver que el salto de utilizar embeddings es importante, y que a su vez los embeddings en clases discretas tienen bastante ventaja, pero como ya vimos en el analisis un poco mas cualitativo del resultado de cada clase, es mas valorable tener las clases pequeñas bien representadas tambien.
+
+Por ultimo para cerrar esta parte, hay que remarcar que se puede hacer mucha ingenieria a los datos para exprimirlos mejor, usando por ejemplo bigramas o trigramas, DocVectorizer y muchos otros metodos de analisis de texto.
+
+# Prediccion de respuestas como parte de un Pipeline
+
+Como se dijo anteriormente, se trabajo con el proyecto de [Lautaro Martinez](github.com/LMartinezEXEX/Generador_Contestaciones).
+
+La idea principal es que con los modelos de generacion de respuestas, se haga un analisis estas dependiendo cuantas respuestas predijo mi modelo que iba a tener el tweet. Por ejemplo, un tuit al que mi modelo predijo 0 respuestas, se espera que tenga una respuesta generada de menor calidad que a uno que se predijo +3.
+
+Para esto, la idea era usar los 4 modelos de clusters entrenados que utiliza Lautaro, tomando los centroides de cada cluster. Con los centroides de cada cluster la idea es que se compare la distancia coseno a cada uno con el tuit al que se quiere generar la respuesta.
 
 LAUTI MARTINEZ
 -AGREGAR COMO LO UNIRIA DEL TODO
