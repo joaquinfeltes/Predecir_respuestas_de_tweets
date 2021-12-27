@@ -162,8 +162,95 @@ Como se dijo anteriormente, se trabajo con el proyecto de [Lautaro Martinez](git
 
 La idea principal es que con los modelos de generacion de respuestas, se haga un analisis estas dependiendo cuantas respuestas predijo mi modelo que iba a tener el tweet. Por ejemplo, un tuit al que mi modelo predijo 0 respuestas, se espera que tenga una respuesta generada de menor calidad que a uno que se predijo +3.
 
-Para esto, la idea era usar los 4 modelos de clusters entrenados que utiliza Lautaro, tomando los centroides de cada cluster. Con los centroides de cada cluster la idea es que se compare la distancia coseno a cada uno con el tuit al que se quiere generar la respuesta.
+Para esto, la idea era usar los 4 modelos de clusters entrenados que utiliza Lautaro, tomando los centroides de cada cluster. Con los centroides de cada cluster la idea es que se compare la distancia coseno a cada uno con el tuit al que se quiere generar la respuesta. Luego el que tenga menor distancia va a ser el cluster cuyo modelo preentrenado se va a usar para generar la respuesta. Luego analizamos la cantidad de respuestas que predijo mi modelo y vemos la calidad de respuesta generada. Se puede agregar mi modelo al pipeline de Lautaro chequeando que la cantidad de respuestas predicha sea mayor a 0, ya que si es 0 no vale la pena que ese tuit sea contestado.
 
-LAUTI MARTINEZ
--AGREGAR COMO LO UNIRIA DEL TODO
--AGREGAR LOS CAMBIOS QUE HICE, CREO QUE FUERON SOLO EN MAIN, FIJARSE EN EL DRIVE
+Por dificultades con el entrenamiento, no se hizo la parte de los centroides si no que se tomo directamente el cluster 1 y se hizo la parte del analisis de calidad de respuesta.
+
+Tomamos los siguientes tweets con su cantidad de respuestas y la preddiccion de este valor:
+
+```
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+porque el pami no lo maneja un jubilado todos tienen sindicatos pq el pami no, digo por ahi puede ser una solucion que manejen su propia plata estoy delirando sorry
+cantidad de respuestas:   0
+preddicion con el modelo: 2
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+No te estoy diciendo nada a vos. Te sigo hace tiempo y sé que siempre pedís transparencia, no sólo con las vacunas. Simplemente digo que no se puede vivir permanentemente con las libertades restringidas y que hay que tener cuidado al decir esto importa más que aquello.
+cantidad de respuestas:   0
+preddicion con el modelo: 2
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Y tenemos que aplaudir?
+cantidad de respuestas:   0
+preddicion con el modelo: 0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+.
+
+.
+cantidad de respuestas:   0
+preddicion con el modelo: 0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Te repito. REPELOTUDO, la ANMAT solo recibió datos de un cortepreliminar.  O sea de una menor cantidad de casos, no recibió el informe final del estudio.
+Veo que no leíste el informe de ANMAT. No habla de cantidad de ensayos, ni de porcentajes ni resultados finales.
+cantidad de respuestas:   2
+preddicion con el modelo: 2
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+no mucho todavía
+cantidad de respuestas:   1
+preddicion con el modelo: 0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Gracias!!!!!!❤
+cantidad de respuestas:   0
+preddicion con el modelo: 0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Encima es profesor. Mamita
+cantidad de respuestas:   0
+preddicion con el modelo: 0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+che, que ganas de probar con Ernestito un litro de dióxido de cloro intravenoso
+cantidad de respuestas:   0
+preddicion con el modelo: 0
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Y si hay vos no lo vas a decir....ya perdimos la inocencia mira si les vamos a creer 🤢
+cantidad de respuestas:   0
+preddicion con el modelo: 0
+```
+
+Los tuits numero 1, 2 y 5 fueron los que el modelo predijo que iban a tener 2 respuestas, para el resto se predijeron 0. Veamos las respuestas de estos:
+
+1 - Tweet:
+
+    porque el pami no lo maneja un jubilado todos tienen sindicatos pq el pami no, digo por ahi puede ser una solucion que manejen su propia plata estoy delirando sorry
+
+Respuesta:
+
+    @spitta1969 Cuántos culos habrá lamido este inutil para llegar a un puesto donde debe ganar bastante?
+
+Vemos que el primer tuit hace una pregunta sobre el pami, mientras que la respuesta que se genera es un ataque que poco esta relacionada a la pregunta.
+
+2 - Tweet:
+
+    No te estoy diciendo nada a vos. Te sigo hace tiempo y sé que siempre pedís transparencia, no sólo con las vacunas. Simplemente digo que no se puede vivir permanentemente con las libertades restringidas y que hay que tener cuidado al decir esto importa más que aquello.
+
+Respuesta:
+
+    @rquiroga777 Me parece que en el fondo todos sabemos que la cuarentena total ya es inevitable. Me parece que las restricciones son el preámbulo.
+
+En el segundo tuit, se genera algo muy interesante, habla de manera bastante educada sobre las "libertades restringidas" refiriendose probablemente a la cuarentena. Mientras que su respuesta generada, dice que la cuarentena total es inevitable y que las restricciones son el preambulo de esta.
+
+Es interesante marcar que aunque el modelo habia predicho 2 respuestas, el tuit original no tenia ninguna, pero tiene mucho sentido que por la manera en que esta escrito si tuviese. Y vimos que la respuesta generada tiene mucho sentido.
+
+5 - Tweet:
+
+    Te repito. REPELOTUDO, la ANMAT solo recibió datos de un cortepreliminar.  O sea de una menor cantidad de casos, no recibió el informe final del estudio.
+    Veo que no leíste el informe de ANMAT. No habla de cantidad de ensayos, ni de porcentajes ni resultados finales.
+
+Respuesta:
+
+    @NicoOlsze Yo recuerdo y tengo guardados los memes dónde pedían q vacunen a los políticos primero. No hay poronga q les venga bien. Lastima q no tengo seguidores. Jajaja
+
+Por ultimo en el tercer tuit, habla muy violentamente sobre informes del ANMAT, seguramente de las vacunas, diciendo que estas no estan aprobadas. Y la respuesta que se genera habla diciendo que la gente pedia que los politicos se vacunen primero y responde de manera un poco violenta tambien de que nada les viene bien. Se nota que son conversaciones diferentes, puesto que el primero habla de que no quiere que les pongan vacunas y el segundo le responde a alguien que probablemente se queja de que los politicos se vacunaron primero.
+
+Igualmente, el tema general es bastante acertado, y sin prestar atencion puede parecer una conversacion normal de twitter.
+
+Observando el resto de tuits, se nota que el modelo no pudo generar respuestas muy relacionadas al tema del tuit al que se contesta, lo cual era de esperar ya que nuestro modelo predijo que no iba a tener respuestas
+
+Cabe remarcar que el tuit " no mucho todavía" se predijo con 0 respuestas a pesar que tiene 1 realmente. Esto indica que a pesar de que sea un fallo en la estadistica, es una respuesta que tiene sentido ya que no hay mucho que contestar a este tweet, lo cual es alentador para el modelo. (Algo similar ocurrio con el tweet numero 2 mostrado anteriormente).
