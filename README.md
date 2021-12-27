@@ -71,7 +71,11 @@ Por ultimo se dividio todo el dataset para tener un 80% para entrenamiento, 10% 
 
 # Aproximaciones
 
-## Primer aproximacion utilizando Bag of words con CountVectorizer
+## Bag of words con CountVectorizer
+
+### Primer aproximacion
+
+Esta parte del proceso se llevo a cabo en el archivo `Entrenamiento.ipynb`
 
 La primera aproximacion que se tomo fue utilizando [CountVectorizer](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html) de sklearn para representar los tweets con "Bag of words" (bolsa de palabras). Esto significa que cada tweet va a ser un vector, donde cada dimension es una palabra del vocabulario. Se tomo como vocabulario las 15000 palabras mas recurrentes del dataset, para mayor eficiencia y facilidad en manejo de memoria pero tambien para no incluir muchas palabras que ocurren solo una vez en todo el dataset y no van a aportar nada interesante.
 
@@ -79,7 +83,35 @@ La primera aproximacion que se hizo, que se puede ver en las primeras versiones 
 
 ## ![Primer_test_BOW](./images/1er_test_BOW.png)
 
-Se puede observar que a la mayoria de elementos se les asigno la clase de 0 respuestas, esto da un buen resultado general (69% de acierto), pero haciendo el analisis de la matriz de confusion, se puede notar que la diagonal (donde se encuentran los resultados correctos) solo tiene la mayoria de la fila en la clase del 0. Aca podemos ver con claridad el sezgo por la sobrepoblacion de la clase, el cual se podria discutir que no es tan malo, si en las muestras reales de tweets la mayoria tiene esa cantidad de respuestas. Pero hay que recalcar que no se quiere conseguir un alto porcentaje de acierto prediciendo siempre que un tuit va a tener 0 respuestas, esto no nos genera ningun aprendizaje ni aporta ningun beneficio.
+Se puede observar que a la mayoria de elementos se les asigno la clase de 0 respuestas, esto da un buen resultado general (68,4% de acierto), pero haciendo el analisis de la matriz de confusion, se puede notar que la diagonal (donde se encuentran los resultados correctos) solo tiene la mayoria de la fila en la clase del 0. Aca podemos ver con claridad el sezgo por la sobrepoblacion de la clase, el cual se podria discutir que no es tan malo, si en las muestras reales de tweets la mayoria tiene esa cantidad de respuestas. Pero hay que recalcar que no se quiere conseguir un alto porcentaje de acierto prediciendo siempre que un tuit va a tener 0 respuestas, esto no nos genera ningun aprendizaje ni aporta ningun beneficio.
+
+Luego la primer aproximacion que se hizo utilizando la division [0, 1, 2, +3] pero aun sin utilizar los subgrupos de 0 y 1, tuvo resultados similares al anterior, acumulandose las predicciones en el lado de 0 respuestas, pero teniendo los datos mucho mas compactos lo cual facilita su visualizacion. Algo a remarcar es que para este entrenamiento no se utilizo en su totalidad el dataset para entre namiento, ya que saturaban la memoria del Google colab. Se tomo entonces los primeros 25000 tuits, que siguen respresentando una buena cantidad.
+
+### utilizando las subdivisiones de 0 y 1
+
+Para que la prediccion no se base en la cantidad de elementos, si no que se concentre en realmente el contenido del tweet, separamos la clase del 0 y del 1 en otros nuevos dataframes, los cuales estan marcados con subgrupos para ser entrenados por separado y tomar el promedio entre los resultados. Se corrieron las 90 combinaciones de subgrupos de clases, combinandolas con el resto de tweets. Luego se guardo un par de indices random para obtener la matriz de confusion:
+
+## ![BOW_subdivisiones](./images/BOW_classes_10_2.png)
+
+Lo primero que se puede notar, es que el porcentaje general baja abruptamente, cerca de un 24%. Pero ahora se puede decir que el modelo esta realmente prediciendo por lo que ve en los vectores de los tweets, y no tanto en que clase tiene mas elementos. Vemos que la clase del 0 tiene ahora un poco mas de 50% de predicciones correctas, la del 1 un 30%, la del 2 es la peor, siendo su label real la que menos predijo el modelo (20%), y por ultimo la clsae de +3 con un 40 % de acierto. Se puede decir tambien que al estar gran parte de los tweets con 0 bien representados (que es la clase con mas elementos de testeo) eso subio la estadistica, pero se ve un gran avance en el resto de las clases para el pequenio cambio que se hizo.
+
+### Con las subdivisiones y clases discretas
+
+Para analizar un poco mejor las cantidades de respuestas, sin depender de las clases que asignamos, se va a hacer un analisis tomando como las clases los primeros 20 enteros.
+
+## ![BOW_discreto](./images/BOW_discrete_1_1.png)
+
+Podemos ver que el porcentaje general aumento por unos pocos puntos, pero nuevamente vemos una acumulacion grande en las clases de pocas respuestas, esta vez como los subgrupos de 0 y 1 y la clase de 2 tienen la misma cantidad de elementos, se puede ver que se repartieron la mayoria de predicciones en estas columnas, y avanzando en la diagonal lejos de la esquina superior izquiera, podemos ver que todas las preddicciones dan 0%. La clase del 20, tiene un poco mas de elementos, ya que acumula todos los tuits de 20 o mas respuestas, y tuvo un poco mas de representacion, pero igualmente su porcentaje de acierto fue menor al 10%.
+
+Una de las razones por las que se tomo esta aproximacion fue para ver si valia la pena hacer una division de clases dependiendo de como juntaba el modelo las respuestas si se observaban todas las clases juntas. Pero al tener tan pocos datos marcados con mas de 3 respuestas, es dificil hacer esta division y que de algun valor. Igualmente se intento hacer la siguiente aproximacion:
+
+## ![BOW_0_1_mas](./images/0_1-2_mas.png)
+
+Donde se dividio en 0, 1-2 y +3. Se puede ver que esta division no fue muy buena, probablemente porque la cantidad de elementos de la clase de 1-2 era el doble que de las otras hizo que sea sobrerepresentada. Pero al haber dado un porcentaje tan bajo, no se decidio seguir investigando por esa rama.
+
+## Bag of words con CountVectorizer
+
+### Primer aproximacion
 
 ---
 
