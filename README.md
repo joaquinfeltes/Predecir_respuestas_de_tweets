@@ -8,7 +8,7 @@ Profesora: `Laura Alonso Alemany`
 
 # Introducción
 
-La idea principal es predecir cuántas respuestas va a tener un tweet. Para esto se tomó el approach de tarea de pretexto, usando la cantidad de respuestas de un tuit para generar una tag para el entrenamiento del modelo de predicción. Además, se va a utilizar el predictor de respuestas para ser agregado a un pipeline de generación de respuestas a tuits. Este generador fue el trabajo final de [Lautaro Martinez](github.com/LMartinezEXEX/Generador_Contestaciones), un compañero de la materia.
+La idea principal es predecir cuántas respuestas va a tener un tweet. Para esto se tomó el approach de tarea de pretexto, usando la cantidad de respuestas de un tuit para generar una tag para el entrenamiento del modelo de predicción. Además, se va a utilizar el predictor de respuestas para ser agregado a un pipeline de generación de respuestas a tuits. Este generador fue el trabajo final de [Lautaro Martinez](https://github.com/LMartinezEXEX/Generador_Contestaciones), un compañero de la materia.
 
 # Dataset
 
@@ -158,7 +158,7 @@ Por último para cerrar esta parte, hay que remarcar que se puede hacer mucha in
 
 # Predicción de respuestas como parte de un Pipeline
 
-Como se dijo anteriormente, se trabajó con el proyecto de [Lautaro Martinez](github.com/LMartinezEXEX/Generador_Contestaciones).
+Como se dijo anteriormente, se trabajó con el proyecto de [Lautaro Martinez](https://github.com/LMartinezEXEX/Generador_Contestaciones).
 
 La idea principal es que con los modelos de generación de respuestas, se haga un análisis estas dependiendo cuantas respuestas predijo mi modelo que iba a tener el tweet. Por ejemplo, un tuit al que mi modelo predijo 0 respuestas, se espera que tenga una respuesta generada de menor calidad que a uno que se predijo +3.
 
