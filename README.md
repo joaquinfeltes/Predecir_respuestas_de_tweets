@@ -65,7 +65,7 @@ Con esto en mente, podemos ver como queda el histograma de las clases divididas 
 
 Vemos que esto deja los datos muchísimo mejor, ahora todas las clases tienen aproximadamente la misma cantidad de elementos y no debería haber sesgo en el entrenamiento de datos.
 
-Para la división en subgrupos, se tomaron hizo una división al azar con el framework de pandas, por lo que los resultados enseñados a continuación no van a poder replicarse exactamente.
+Para la división en subgrupos, se hizo una división al azar con el framework de pandas, por lo que los resultados enseñados a continuación no van a poder replicarse exactamente.
 
 Por último se dividió todo el dataset para tener un 80% para entrenamiento, 10% develop y 10% para testeo final.
 
